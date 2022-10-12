@@ -5,24 +5,27 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     public Rigidbody playerRb;
+    private AudioManager audioManager;
     public float bounceForce = 6;
 
-    
-    /* // Start is called before the first frame update
-     void Start()
-     {
 
-     }
 
-     // Update is called once per frame
-     void Update()
-     {
+    // Start is called before the first frame update
+    void Start()
+    {
+        audioManager = FindObjectOfType<AudioManager>();
 
-     }*/
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
+    }
 
     private void OnCollisionEnter(Collision collision)
     {
-        FindObjectOfType<AudioManager>().Play("bounce");
+        audioManager.Play("bounce");
         playerRb.velocity = new Vector3(playerRb.velocity.x, bounceForce, playerRb.velocity.z);
         string materialName = collision.transform.GetComponent<MeshRenderer>().material.name;
 
@@ -37,12 +40,14 @@ public class Player : MonoBehaviour
             // when the ball hits the unsafe area
            // Debug.Log("Game Over!");
             GameManager.gameOver = true;
+            audioManager.Play("game_over");
         }
         else if (materialName.Equals("Last Ring (Instance)"))
         {
             // Player won the game
             //Debug.Log("Congratulations");
             GameManager.levelCompleted = true;
+            audioManager.Play("win_level");
         }
     }
 }
