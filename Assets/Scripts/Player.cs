@@ -42,7 +42,7 @@ public class Player : MonoBehaviour
             GameManager.gameOver = true;
             audioManager.Play("game_over");
         }
-        else if (materialName.Equals("Last Ring (Instance)"))
+        else if (materialName.Equals("Last Ring (Instance)") && !GameManager.levelCompleted)
         {
             // Player won the game
             //Debug.Log("Congratulations");
