@@ -55,9 +55,9 @@ public class GameManager : MonoBehaviour
         scoreText.text = score.ToString();
 
 
-        if (Input.GetMouseButtonDown(0) && !isGameStarted)
+        if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began && !isGameStarted)
         {
-            if (EventSystem.current.IsPointerOverGameObject())
+            if (EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
                 return;
           
             isGameStarted = true;
