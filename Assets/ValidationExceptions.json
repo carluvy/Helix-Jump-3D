@@ -1,0 +1,9 @@
+{
+    "ErrorExceptions": [
+        {
+            "ValidationTest": "API Validation",
+            "ExceptionMessage": "Error without the words Error: at the begining",
+            "PackageVersion": "0.8.2-preview"
+        }
+    ]
+}

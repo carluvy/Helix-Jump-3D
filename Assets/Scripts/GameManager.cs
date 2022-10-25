@@ -7,6 +7,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.SocialPlatforms;
 using UnityEngine.Rendering;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class GameManager : MonoBehaviour
 {
@@ -17,18 +18,27 @@ public class GameManager : MonoBehaviour
     public static bool mute = false;
     public static bool isGameStarted;
     public static int score = 0;
-    
+    public static string username;
+    public static bool highscorePassed;
+
     public TextMeshProUGUI currentLevelText;
     public TextMeshProUGUI nextLevelText;
     public GameObject gameOverPanel;
     public GameObject levelCompletedPanel;
+   
     public GameObject gamePlayPanel;
     public GameObject startMenuPanel;
     public Slider gameProgressSlider;
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI highscoreText;
-    public GameObject[] userPrefab;
-  
+    
+    //public TextMeshProUGUI newHighscoreText;
+    //public ParticleSystem celebrationParticleEffect;
+   public GameObject highscorePassedPanel;
+    
+    
+
+
 
 
 
@@ -37,30 +47,47 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
+       
         currentLevelIndex = PlayerPrefs.GetInt("CurrentLevelIndex", 1);
+        
+
+
+
+
+
     }
     void Start()
     {
+        // Start the game
         Time.timeScale = 1;
         numberOfPassedRings = 0;
+
+        // Set the text for the current highscore
         highscoreText.text = "Best Score:\n" + PlayerPrefs.GetInt("HighScore", 0);
-        Social.ShowLeaderboardUI();
+        
 
-        isGameStarted = gameOver = levelCompleted = false;
-
-
-
+        isGameStarted = gameOver = levelCompleted = highscorePassed = false;
+     
 
 
 
 
+
+
+        
         Social.localUser.Authenticate(ProcessAuthentication);
+
+        // Set the username to a prefs value
+        //PlayerPrefs.SetString("UserName", username);
+
+        
+
         /*leaderboard = Social.CreateLeaderboard();
         
         
         leaderboard.id = "HelixLeaderboard01";
 */
-       
+
 
 
 
@@ -72,7 +99,7 @@ public class GameManager : MonoBehaviour
 
 
     }
-
+    // Create leaderbord using social platforms api
     void CreateLeaderBoard()
     {
         
@@ -80,14 +107,17 @@ public class GameManager : MonoBehaviour
     }
 
 
-   /* void DidLoadLeaderboard(bool result)
-    {
-        Debug.Log("Received " + leaderboard.scores.Length + " scores");
-        foreach (IScore score in leaderboard.scores)
-            Debug.Log(score);
-    }*/
+    /* void DidLoadLeaderboard(bool result)
+     {
+         Debug.Log("Received " + leaderboard.scores.Length + " scores");
+         foreach (IScore score in leaderboard.scores)
+             Debug.Log(score);
+     }*/
 
 
+
+
+    // Using social platform's  api to authenticate user
     void ProcessAuthentication (bool success)
     {
             if (success)
@@ -96,6 +126,7 @@ public class GameManager : MonoBehaviour
                 string userInfo = "Username: " + Social.localUser.userName +
                 "\nUser ID: " + Social.localUser.id +
                 "\nIsUnderage: " + Social.localUser.underage;
+            username = Social.localUser.userName;
             Debug.Log(userInfo);
             // Request loaded achievements, and register a callback for processing them
             //Social.LoadAchievements(ProcessLoadedAchievements);
@@ -133,7 +164,7 @@ public class GameManager : MonoBehaviour
         
     }
 
-
+    // Checking if the highscore is being reported
     void HighScoreCheck(bool result)
     {
         if (result)
@@ -144,13 +175,11 @@ public class GameManager : MonoBehaviour
 // Update is called once per frame
 void Update()
     {
-       /* Social.ReportScore(PlayerPrefs.GetInt("HighScore"), "HelixLeaderboard01", success =>
-        {
-            Debug.Log(success ? "Reported score successfully" : "Failed to report score");
-        });*/
+       
         //Update UI elements
         currentLevelText.text = currentLevelIndex.ToString();
         nextLevelText.text = (currentLevelIndex + 1).ToString();
+     
 
         int progress = numberOfPassedRings * 100 / FindObjectOfType<HelixManager>().numberOfRings;
         gameProgressSlider.value = progress;
@@ -158,7 +187,7 @@ void Update()
         scoreText.text = score.ToString();
 
         #region standalone inputs
-        if (Input.GetMouseButtonDown(0) && !isGameStarted)
+        /*if (Input.GetMouseButtonDown(0) && !isGameStarted)
         {
             if (EventSystem.current.IsPointerOverGameObject())
                 return;
@@ -166,7 +195,7 @@ void Update()
             isGameStarted = true;
             gamePlayPanel.SetActive(true);
             startMenuPanel.SetActive(false);
-        }
+        }*/
         #endregion
 
 
@@ -179,8 +208,16 @@ void Update()
             gamePlayPanel.SetActive(true);
             startMenuPanel.SetActive(false);
 
+            
+
         }
-        
+
+       
+
+
+
+
+
         // Game Over
         if (gameOver)
         {
@@ -189,15 +226,24 @@ void Update()
 
             if (Input.GetButtonDown("Fire1"))
             {
-                if (score > PlayerPrefs.GetInt("HighScore", 0))
+                if (score > PlayerPrefs.GetInt("HighScore"))
                 {
                     PlayerPrefs.SetInt("HighScore", score);
+                    PlayerPrefs.Save();
+
+                    highscorePassedPanel.SetActive(true);
+
                 }
+               
+                
+
+                
+                
 
                 score = 0;
 
                 SceneManager.LoadScene("Level");
-               
+                
                 /* Social.ReportScore(PlayerPrefs.GetInt("HighScore"), "HelixLeaderboard01", success => {
                      if (success)
                      {
@@ -246,6 +292,7 @@ void Update()
             //ReportScore(leaderboard.localUserScore.value, leaderboard.id);
 
             //Social.ShowLeaderboardUI();
+
         }
 
 
@@ -264,9 +311,24 @@ void Update()
                 SceneManager.LoadScene("Level");
             }
         }
-    }
 
-    private void ReportScore (long score, string leaderboardID)
+        
+
+
+
+
+            
+
+
+
+
+
+
+        }
+
+   
+   // Report the highscore to social platforms
+        private void ReportScore (long score, string leaderboardID)
     {
         Debug.Log("Reporting score " + score + " on leaderboard " + leaderboardID);
         Social.ReportScore(score, leaderboardID, success =>

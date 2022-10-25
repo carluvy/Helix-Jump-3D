@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CharacterSelection : MonoBehaviour
 {
     public GameObject[] characters;
     private int selectedCharacter = 0;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -20,9 +22,19 @@ public class CharacterSelection : MonoBehaviour
 
     public void ChangeCharacter(int newCharacter)
     {
-        characters[selectedCharacter].SetActive(false);
-        characters[newCharacter].SetActive(true);
-        selectedCharacter = newCharacter;
+        if (PlayerPrefs.GetInt("HighScore", 0) > 100)
+        {
+
+            characters[selectedCharacter].SetActive(false);
+            characters[newCharacter].SetActive(true);
+            selectedCharacter = newCharacter;
+        }
+        
+
+
+       
+        
+        
 
     }
     // Update is called once per frame
@@ -30,4 +42,6 @@ public class CharacterSelection : MonoBehaviour
     {
         
     }
+
+    
 }
