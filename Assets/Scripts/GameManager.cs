@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI highscoreText;
     
     //public TextMeshProUGUI newHighscoreText;
-    //public ParticleSystem celebrationParticleEffect;
+   public ParticleSystem celebrationParticleEffect;
    public GameObject highscorePassedPanel;
     
     
@@ -49,7 +49,8 @@ public class GameManager : MonoBehaviour
     {
        
         currentLevelIndex = PlayerPrefs.GetInt("CurrentLevelIndex", 1);
-        
+        PlayerPrefs.GetString("UserName");
+
 
 
 
@@ -58,6 +59,7 @@ public class GameManager : MonoBehaviour
     }
     void Start()
     {
+        
         // Start the game
         Time.timeScale = 1;
         numberOfPassedRings = 0;
@@ -67,52 +69,22 @@ public class GameManager : MonoBehaviour
         
 
         isGameStarted = gameOver = levelCompleted = highscorePassed = false;
-     
-
-
-
-
+    
 
 
         
         Social.localUser.Authenticate(ProcessAuthentication);
 
-        // Set the username to a prefs value
-        //PlayerPrefs.SetString("UserName", username);
-
-        
-
-        /*leaderboard = Social.CreateLeaderboard();
-        
-        
-        leaderboard.id = "HelixLeaderboard01";
-*/
-
-
-
-
-
-
 
 
 
 
 
     }
-    // Create leaderbord using social platforms api
-    void CreateLeaderBoard()
-    {
-        
-        //leaderboard.LoadScores(result => DidLoadLeaderboard(result));
-    }
+   
 
 
-    /* void DidLoadLeaderboard(bool result)
-     {
-         Debug.Log("Received " + leaderboard.scores.Length + " scores");
-         foreach (IScore score in leaderboard.scores)
-             Debug.Log(score);
-     }*/
+    
 
 
 
@@ -128,8 +100,7 @@ public class GameManager : MonoBehaviour
                 "\nIsUnderage: " + Social.localUser.underage;
             username = Social.localUser.userName;
             Debug.Log(userInfo);
-            // Request loaded achievements, and register a callback for processing them
-            //Social.LoadAchievements(ProcessLoadedAchievements);
+            
 
 
 
@@ -140,46 +111,15 @@ public class GameManager : MonoBehaviour
 
     }
 
-    // This function gets called when the LoadAchievement call completes
-    void ProcessLoadedAchievements(IAchievement[] achievements)
+
+    // Update is called once per frame
+    void Update()
     {
-        if (achievements.Length == 0)
-            Debug.Log("Error: no achievements found");
-        else
-            Debug.Log("Got " + achievements.Length + " achievements");
 
-        // You can also call into the functions like this
-        Social.ReportProgress("Achievement01", 100.0, result => {
-            if (result)
-                Debug.Log("Successfully reported achievement progress");
-            else
-                Debug.Log("Failed to report achievement");
-        });
-
-        long scoreLong  = PlayerPrefs.GetInt("HighScore");
-
-       
-        Social.ReportScore(scoreLong, "HelixLeaderboard01", HighScoreCheck);
-        
-        
-    }
-
-    // Checking if the highscore is being reported
-    void HighScoreCheck(bool result)
-    {
-        if (result)
-            Debug.Log("Successfully reported score progress");
-         else
-            Debug.Log("Failed to report score");
-        }
-// Update is called once per frame
-void Update()
-    {
-       
         //Update UI elements
         currentLevelText.text = currentLevelIndex.ToString();
         nextLevelText.text = (currentLevelIndex + 1).ToString();
-     
+
 
         int progress = numberOfPassedRings * 100 / FindObjectOfType<HelixManager>().numberOfRings;
         gameProgressSlider.value = progress;
@@ -187,6 +127,9 @@ void Update()
         scoreText.text = score.ToString();
 
         #region standalone inputs
+
+        // Comment this out if running on a smartphone
+
         /*if (Input.GetMouseButtonDown(0) && !isGameStarted)
         {
             if (EventSystem.current.IsPointerOverGameObject())
@@ -203,16 +146,24 @@ void Update()
         {
             if (EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId))
                 return;
-          
+
             isGameStarted = true;
             gamePlayPanel.SetActive(true);
             startMenuPanel.SetActive(false);
 
-            
 
+            if (score > PlayerPrefs.GetInt("HighScore"))
+            {
+
+
+                //celebrationParticleEffect.Play();
+
+                highscorePassedPanel.SetActive(true);
+
+            }
         }
 
-       
+
 
 
 
@@ -231,129 +182,61 @@ void Update()
                     PlayerPrefs.SetInt("HighScore", score);
                     PlayerPrefs.Save();
 
-                    highscorePassedPanel.SetActive(true);
+
+
 
                 }
-               
-                
 
-                
-                
+
+
+
+
 
                 score = 0;
 
                 SceneManager.LoadScene("Level");
-                
-                /* Social.ReportScore(PlayerPrefs.GetInt("HighScore"), "HelixLeaderboard01", success => {
-                     if (success)
-                     {
-                         Debug.Log("Succesful");
-                     } else
-                     {
-                         Debug.Log("failed to report");
-                     }
-                     });*/
-                //Social.LoadAchievements(ProcessLoadedAchievements);
-              
 
 
-                //ReportScore(PlayerPrefs.GetInt("HighScore"), "HelixLeaderboard01");
+
+
             }
+        }
 
-            /*Social.LoadScores("HelixLeaderboard01", scores =>
+
+
+
+
+
+
+            if (levelCompleted)
             {
-                if (scores.Length > 0)
+                levelCompletedPanel.SetActive(true);
+
+                if (Input.GetButtonDown("Fire1"))
                 {
-                    Debug.Log("Got " + scores.Length + " scores");
-                    string myScores = "Leaderboard:\n";
-                    foreach (IScore score in scores)
-                        myScores += "\t" + score.userID + " " + score.formattedValue + " " + score.date + "\n";
-                    Debug.Log(myScores);
-
+                    PlayerPrefs.SetInt("CurrentLevelIndex", currentLevelIndex + 1);
+                    SceneManager.LoadScene("Level");
                 }
-                else
-                    Debug.Log("No scores loaded");
-            });*/
-
-
-            /* leaderboard.LoadScores(result =>
-             {
-                 Debug.Log("Received " + leaderboard.scores.Length + " scores");
-                 foreach (IScore score in leaderboard.scores)
-                     Debug.Log(score.value);
-
-
-             });
-
-
-         leaderboardScores.text = leaderboard.localUserScore.value.ToString();*/
-            //leaderboardScores.text = Social.LoadScores("HelixLeaderboard01", );
-
-            //ReportScore(leaderboard.localUserScore.value, leaderboard.id);
-
-            //Social.ShowLeaderboardUI();
-
-        }
-
-
-
-            
-        
-
-
-     if (levelCompleted)
-        {
-            levelCompletedPanel.SetActive(true);
-
-            if (Input.GetButtonDown("Fire1"))
-            {
-                PlayerPrefs.SetInt("CurrentLevelIndex", currentLevelIndex +1);
-                SceneManager.LoadScene("Level");
             }
-        }
-
-        
-
-
-
-
-            
-
-
-
-
-
 
         }
 
-   
-   // Report the highscore to social platforms
-        private void ReportScore (long score, string leaderboardID)
-    {
-        Debug.Log("Reporting score " + score + " on leaderboard " + leaderboardID);
-        Social.ReportScore(score, leaderboardID, success =>
-        {
-            Debug.Log(success ? "Reported score successfully" : "Failed to report score");
-        });
     }
 
-   /* private void onLeaderboardLoadComplete()
-    {
-        leaderboard.LoadScores(result =>
-        {
-            Debug.Log("Received " + leaderboard.scores.Length + " scores");
-            foreach (IScore score in leaderboard.scores)
-            {
-
-                leaderboardScores.text = score.ToString();
-                Debug.Log(score);
-            }
+        
 
 
 
-        });
+
+            
+
+
+
+
+
 
         
 
-    }*/
-}
+   
+   
+

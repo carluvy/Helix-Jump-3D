@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Rotator : MonoBehaviour
 {
-    public float rotationSpeed = 100;
+    public float rotationSpeed = 80;
     // Start is called before the first frame update
     void Start()
     {
@@ -17,6 +17,8 @@ public class Rotator : MonoBehaviour
 
         if (!GameManager.isGameStarted)
             return;
+        
+        
         #region standalone inputs
         if (Input.GetMouseButton(0))
         {

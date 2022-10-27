@@ -22,7 +22,7 @@ public class CharacterSelection : MonoBehaviour
 
     public void ChangeCharacter(int newCharacter)
     {
-        if (PlayerPrefs.GetInt("HighScore", 0) > 100)
+        if (PlayerPrefs.GetInt("HighScore", 0) > 10)
         {
 
             characters[selectedCharacter].SetActive(false);
